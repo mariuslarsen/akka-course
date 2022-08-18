@@ -17,7 +17,7 @@ public class ManagerBehavior extends AbstractBehavior<ManagerBehavior.Command> {
 
   }
 
-  public record InstructionCommand(String message) implements Command {
+  public record StartCommand() implements Command {
 
   }
 
@@ -38,15 +38,13 @@ public class ManagerBehavior extends AbstractBehavior<ManagerBehavior.Command> {
   @Override
   public Receive<Command> createReceive() {
     return newReceiveBuilder()
-        .onMessage(InstructionCommand.class, command -> {
-          if (command.message.equals("start")) {
-            IntStream.range(0, 20)
-                .mapToObj(i -> getContext().spawn(WorkerBehavior.create(), "worker-" + i))
-                .forEach(actor -> {
-                  actor.tell(new WorkerBehavior.CalculatePrime("start", getContext().getSelf()));
-                  actor.tell(new WorkerBehavior.CalculatePrime("start", getContext().getSelf()));
-                });
-          }
+        .onMessage(StartCommand.class, command -> {
+          IntStream.range(0, 20)
+              .mapToObj(i -> getContext().spawn(WorkerBehavior.create(), "worker-" + i))
+              .forEach(actor -> {
+                actor.tell(new WorkerBehavior.CalculatePrime(getContext().getSelf()));
+                actor.tell(new WorkerBehavior.CalculatePrime(getContext().getSelf()));
+              });
           return this;
         })
         .onMessage(ResultCommand.class, command -> {

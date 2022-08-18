@@ -16,7 +16,7 @@ public class WorkerBehavior extends AbstractBehavior<WorkerBehavior.Command> {
 
   }
 
-  public record CalculatePrime(String message, ActorRef<ManagerBehavior.Command> sender) implements
+  public record CalculatePrime(ActorRef<ManagerBehavior.Command> sender) implements
       Command {
 
   }
@@ -29,22 +29,27 @@ public class WorkerBehavior extends AbstractBehavior<WorkerBehavior.Command> {
     return Behaviors.setup(WorkerBehavior::new);
   }
 
-  private BigInteger cachedPrime;
-
   @Override
   public Receive<Command> createReceive() {
+    return handleWithoutCachedPrime();
+  }
+
+  public Receive<Command> handleWithoutCachedPrime() {
     return newReceiveBuilder()
         .onMessage(CalculatePrime.class, command -> {
-          if (command.message.equals("start")) {
-            if (cachedPrime != null) {
-              command.sender.tell(new ManagerBehavior.ResultCommand(cachedPrime));
-            } else {
-              BigInteger bigInteger = new BigInteger(2000, new Random());
-              cachedPrime = bigInteger.nextProbablePrime();
-              command.sender.tell(new ManagerBehavior.ResultCommand(cachedPrime));
-            }
-          }
-          return this;
+          BigInteger bigInteger = new BigInteger(2000, new Random());
+          BigInteger prime = bigInteger.nextProbablePrime();
+          command.sender.tell(new ManagerBehavior.ResultCommand(prime));
+          return handleWithCachedPrime(prime);
+        })
+        .build();
+  }
+
+  public Receive<Command> handleWithCachedPrime(BigInteger prime) {
+    return newReceiveBuilder()
+        .onMessage(CalculatePrime.class, command -> {
+          command.sender.tell(new ManagerBehavior.ResultCommand(prime));
+          return Behaviors.same();
         })
         .build();
   }
