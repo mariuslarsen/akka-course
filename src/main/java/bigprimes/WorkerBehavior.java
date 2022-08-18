@@ -12,9 +12,14 @@ import java.util.Random;
 
 public class WorkerBehavior extends AbstractBehavior<WorkerBehavior.Command> {
 
-  sealed interface Command extends Serializable{}
+  sealed interface Command extends Serializable {
 
-  public record CalculatePrime(String message, ActorRef<ManagerBehavior.Command> sender) implements Command {}
+  }
+
+  public record CalculatePrime(String message, ActorRef<ManagerBehavior.Command> sender) implements
+      Command {
+
+  }
 
   private WorkerBehavior(ActorContext<Command> context) {
     super(context);
@@ -30,12 +35,12 @@ public class WorkerBehavior extends AbstractBehavior<WorkerBehavior.Command> {
   public Receive<Command> createReceive() {
     return newReceiveBuilder()
         .onMessage(CalculatePrime.class, command -> {
-          if(command.message.equals("start")) {
-            if(cachedPrime != null) {
+          if (command.message.equals("start")) {
+            if (cachedPrime != null) {
               command.sender.tell(new ManagerBehavior.ResultCommand(cachedPrime));
             } else {
               BigInteger bigInteger = new BigInteger(2000, new Random());
-              cachedPrime =  bigInteger.nextProbablePrime();
+              cachedPrime = bigInteger.nextProbablePrime();
               command.sender.tell(new ManagerBehavior.ResultCommand(cachedPrime));
             }
           }

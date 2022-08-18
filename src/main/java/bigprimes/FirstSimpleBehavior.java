@@ -21,7 +21,8 @@ public class FirstSimpleBehavior extends AbstractBehavior<String> {
   public Receive<String> createReceive() {
     return newReceiveBuilder()
         .onMessageEquals("create a child", () -> {
-          ActorRef<String> secondActor =  getContext().spawn(FirstSimpleBehavior.create(), "SecondActor");
+          ActorRef<String> secondActor = getContext().spawn(FirstSimpleBehavior.create(),
+              "SecondActor");
           secondActor.tell("who are you");
           return this;
         })
