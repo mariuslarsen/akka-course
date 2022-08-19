@@ -1,30 +1,11 @@
 package blockchaincasestudy.model;
 
-public class HashResult {
-
-  private int nonce;
-  private String hash;
-  private boolean complete = false;
-
-  public HashResult() {
+public record HashResult(int nonce, String hash, boolean completed) {
+  public static HashResult foundAHash(int nonce, String hash) {
+    return new HashResult(nonce, hash, true);
   }
 
-  public int getNonce() {
-    return nonce;
+  public static HashResult emptyHash() {
+   return new HashResult(0, "", false);
   }
-
-  public String getHash() {
-    return hash;
-  }
-
-  public boolean isComplete() {
-    return complete;
-  }
-
-  public synchronized void foundAHash(String hash, int nonce) {
-    this.hash = hash;
-    this.nonce = nonce;
-    this.complete = true;
-  }
-
 }
