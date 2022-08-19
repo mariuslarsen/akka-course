@@ -1,5 +1,3 @@
 package blockchaincasestudy.model;
 
-public class BlockValidationException extends Exception {
-
-}
+public class BlockValidationException extends Exception {}

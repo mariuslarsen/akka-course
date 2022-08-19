@@ -16,14 +16,7 @@ import java.util.stream.IntStream;
 
 public class ManagerBehavior extends AbstractBehavior<ManagerBehavior.Command> {
 
-  public sealed interface Command extends Serializable {}
-
-  public record StartCommand() implements Command {}
-
-  public record ResultCommand(BigInteger prime) implements Command {}
-
-  private record NoResponseReceivedCommand(ActorRef<WorkerBehavior.Command> worker)
-      implements Command {}
+  private final SortedSet<BigInteger> primes = new TreeSet<>();
 
   private ManagerBehavior(ActorContext<Command> context) {
     super(context);
@@ -32,8 +25,6 @@ public class ManagerBehavior extends AbstractBehavior<ManagerBehavior.Command> {
   public static Behavior<Command> create() {
     return Behaviors.setup(ManagerBehavior::new);
   }
-
-  private final SortedSet<BigInteger> primes = new TreeSet<>();
 
   @Override
   public Receive<Command> createReceive() {
@@ -82,4 +73,13 @@ public class ManagerBehavior extends AbstractBehavior<ManagerBehavior.Command> {
               }
             });
   }
+
+  public sealed interface Command extends Serializable {}
+
+  public record StartCommand() implements Command {}
+
+  public record ResultCommand(BigInteger prime) implements Command {}
+
+  private record NoResponseReceivedCommand(ActorRef<WorkerBehavior.Command> worker)
+      implements Command {}
 }

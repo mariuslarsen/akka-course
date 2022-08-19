@@ -12,10 +12,6 @@ import blockchaincasestudy.utils.BlockChainUtils;
 
 public class WorkerBehavior extends AbstractBehavior<WorkerBehavior.Command> {
 
-  public record Command(Block block, int startNonce, int difficulty, ActorRef<HashResult> controller) {
-
-  }
-
   private WorkerBehavior(ActorContext<Command> context) {
     super(context);
   }
@@ -27,32 +23,37 @@ public class WorkerBehavior extends AbstractBehavior<WorkerBehavior.Command> {
   @Override
   public Receive<Command> createReceive() {
     return newReceiveBuilder()
-        .onAnyMessage(message -> {
-          String hash = new String(new char[message.difficulty]).replace("\0", "X");
-          String target = new String(new char[message.difficulty]).replace("\0", "0");
+        .onAnyMessage(
+            message -> {
+              String hash = new String(new char[message.difficulty]).replace("\0", "X");
+              String target = new String(new char[message.difficulty]).replace("\0", "0");
 
-          int nonce = message.startNonce;
-          while (!hash.substring(0, message.difficulty).equals(target)
-              && nonce < message.startNonce + 1000) {
-            nonce++;
-            String dataToEncode =
-                message.block.getPreviousHash() + message.block.getTransaction().getTimestamp()
-                    + nonce + message.block.getTransaction();
-            hash = BlockChainUtils.calculateHash(dataToEncode);
-          }
-          if (hash.substring(0, message.difficulty).equals(target)) {
-            HashResult hashResult = HashResult.foundAHash(nonce, hash);
+              int nonce = message.startNonce;
+              while (!hash.substring(0, message.difficulty).equals(target)
+                  && nonce < message.startNonce + 1000) {
+                nonce++;
+                String dataToEncode =
+                    message.block.getPreviousHash()
+                        + message.block.getTransaction().getTimestamp()
+                        + nonce
+                        + message.block.getTransaction();
+                hash = BlockChainUtils.calculateHash(dataToEncode);
+              }
+              if (hash.substring(0, message.difficulty).equals(target)) {
+                HashResult hashResult = HashResult.foundAHash(nonce, hash);
 
-            // send hashresult to controller return hashResult;
-            getContext().getLog().debug(hashResult.nonce() + " : " + hashResult.hash());
-            message.controller.tell(hashResult);
-            return Behaviors.same();
-          } else {
-            getContext().getLog().debug("null");
-            return Behaviors.same();
-          }
-        })
+                // send hashresult to controller return hashResult;
+                getContext().getLog().debug(hashResult.nonce() + " : " + hashResult.hash());
+                message.controller.tell(hashResult);
+                return Behaviors.same();
+              } else {
+                getContext().getLog().debug("null");
+                return Behaviors.same();
+              }
+            })
         .build();
   }
 
+  public record Command(
+      Block block, int startNonce, int difficulty, ActorRef<HashResult> controller) {}
 }
