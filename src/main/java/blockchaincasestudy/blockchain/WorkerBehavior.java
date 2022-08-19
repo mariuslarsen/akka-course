@@ -6,32 +6,12 @@ import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 import blockchaincasestudy.model.Block;
+import blockchaincasestudy.model.HashResult;
+import blockchaincasestudy.utils.BlockChainUtils;
 
 public class WorkerBehavior extends AbstractBehavior<WorkerBehavior.Command> {
 
-  public static class Command {
-
-    private Block block;
-    private int startNonce;
-    private int difficulty;
-
-    public Command(Block block, int startNonce, int difficulty) {
-      this.block = block;
-      this.startNonce = startNonce;
-      this.difficulty = difficulty;
-    }
-
-    public Block getBlock() {
-      return block;
-    }
-
-    public int getStartNonce() {
-      return startNonce;
-    }
-
-    public int getDifficulty() {
-      return difficulty;
-    }
+  public record Command(Block block, int startNonce, int difficulty) {
 
   }
 
@@ -45,8 +25,32 @@ public class WorkerBehavior extends AbstractBehavior<WorkerBehavior.Command> {
 
   @Override
   public Receive<Command> createReceive() {
-    // TODO Auto-generated method stub
-    return null;
+    return newReceiveBuilder()
+        .onAnyMessage(message -> {
+          String hash = new String(new char[message.difficulty]).replace("\0", "X");
+          String target = new String(new char[message.difficulty]).replace("\0", "0");
+
+          int nonce = message.startNonce;
+          while (!hash.substring(0, message.difficulty).equals(target)
+              && nonce < message.startNonce + 1000) {
+            nonce++;
+            String dataToEncode =
+                message.block.getPreviousHash() + message.block.getTransaction().getTimestamp()
+                    + nonce + message.block.getTransaction();
+            hash = BlockChainUtils.calculateHash(dataToEncode);
+          }
+          if (hash.substring(0, message.difficulty).equals(target)) {
+            HashResult hashResult = new HashResult();
+            hashResult.foundAHash(hash, nonce);
+            // send hashresult to controller return hashResult;
+            getContext().getLog().debug(hashResult.getNonce() + " : " + hashResult.getHash());
+            return Behaviors.same();
+          } else {
+            getContext().getLog().debug("null");
+            return Behaviors.same();
+          }
+        })
+        .build();
   }
 
 }
