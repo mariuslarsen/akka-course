@@ -1,6 +1,5 @@
 package racingsimulation;
 
-import akka.actor.PossiblyHarmful;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.AbstractBehavior;
@@ -105,7 +104,8 @@ public class Racer extends AbstractBehavior<Racer.Command> {
         .onMessage(PositionCommand.class, command -> {
           command.raceControl.tell(new RaceControl.RacerUpdateCommand(position,
               getContext().getSelf()));
-          return completed(position);
+          command.raceControl.tell(new RaceControl.RacerCompletedCommand(getContext().getSelf()));
+          return Behaviors.ignore();
         })
         .build();
   }
