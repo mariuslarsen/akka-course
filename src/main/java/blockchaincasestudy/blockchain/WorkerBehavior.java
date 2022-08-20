@@ -12,6 +12,9 @@ import blockchaincasestudy.utils.BlockChainUtils;
 
 public class WorkerBehavior extends AbstractBehavior<WorkerBehavior.Command> {
 
+  public record Command(
+      Block block, int startNonce, int difficulty, ActorRef<HashResult> controller) {}
+
   private WorkerBehavior(ActorContext<Command> context) {
     super(context);
   }
@@ -19,9 +22,6 @@ public class WorkerBehavior extends AbstractBehavior<WorkerBehavior.Command> {
   public static Behavior<Command> create() {
     return Behaviors.setup(WorkerBehavior::new);
   }
-
-  public record Command(
-      Block block, int startNonce, int difficulty, ActorRef<HashResult> controller) {}
 
   @Override
   public Receive<Command> createReceive() {
