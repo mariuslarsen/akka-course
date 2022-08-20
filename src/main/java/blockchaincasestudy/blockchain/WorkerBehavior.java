@@ -20,6 +20,9 @@ public class WorkerBehavior extends AbstractBehavior<WorkerBehavior.Command> {
     return Behaviors.setup(WorkerBehavior::new);
   }
 
+  public record Command(
+      Block block, int startNonce, int difficulty, ActorRef<HashResult> controller) {}
+
   @Override
   public Receive<Command> createReceive() {
     return newReceiveBuilder()
@@ -53,7 +56,4 @@ public class WorkerBehavior extends AbstractBehavior<WorkerBehavior.Command> {
             })
         .build();
   }
-
-  public record Command(
-      Block block, int startNonce, int difficulty, ActorRef<HashResult> controller) {}
 }

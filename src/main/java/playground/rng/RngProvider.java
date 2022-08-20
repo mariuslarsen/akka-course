@@ -12,6 +12,10 @@ import java.util.Random;
 
 public class RngProvider extends AbstractBehavior<RngProvider.Command> {
 
+  public interface Command extends Serializable {}
+
+  public record GetNumber(ActorRef<Manager.Command> replyTo) implements Command {}
+
   private final Random random = new Random();
 
   private RngProvider(ActorContext<Command> context) {
@@ -36,8 +40,4 @@ public class RngProvider extends AbstractBehavior<RngProvider.Command> {
             })
         .build();
   }
-
-  public interface Command extends Serializable {}
-
-  public record GetNumber(ActorRef<Manager.Command> replyTo) implements Command {}
 }

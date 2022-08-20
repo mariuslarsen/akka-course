@@ -12,9 +12,11 @@ import java.util.Random;
 
 public class Racer extends AbstractBehavior<Racer.Command> {
 
-  private int averageSpeedAdjustmentFactor;
-  private Random random;
-  private double currentSpeed = 0;
+  public sealed interface Command extends Serializable {}
+
+  public record StartCommand(int raceLength) implements Command {}
+
+  public record PositionCommand(ActorRef<RaceControl.Command> raceControl) implements Command {}
 
   private Racer(ActorContext<Command> context) {
     super(context);
@@ -24,34 +26,9 @@ public class Racer extends AbstractBehavior<Racer.Command> {
     return Behaviors.setup(Racer::new);
   }
 
-  private double getMaxSpeed() {
-    double defaultAverageSpeed = 48.2;
-    return defaultAverageSpeed * (1 + ((double) averageSpeedAdjustmentFactor / 100));
-  }
-
-  private double getDistanceMovedPerSecond() {
-    return currentSpeed * 1000 / 3600;
-  }
-
-  private void determineNextSpeed(int raceLength, double currentPosition) {
-    if (currentPosition < (raceLength / 4)) {
-      currentSpeed = currentSpeed + (((getMaxSpeed() - currentSpeed) / 10) * random.nextDouble());
-    } else {
-      currentSpeed = currentSpeed * (0.5 + random.nextDouble());
-    }
-
-    if (currentSpeed > getMaxSpeed()) {
-      currentSpeed = getMaxSpeed();
-    }
-
-    if (currentSpeed < 5) {
-      currentSpeed = 5;
-    }
-
-    if (currentPosition > (raceLength / 2) && currentSpeed < getMaxSpeed() / 2) {
-      currentSpeed = getMaxSpeed() / 2;
-    }
-  }
+  private int averageSpeedAdjustmentFactor;
+  private Random random;
+  private double currentSpeed = 0;
 
   @Override
   public Receive<Command> createReceive() {
@@ -104,9 +81,32 @@ public class Racer extends AbstractBehavior<Racer.Command> {
         .build();
   }
 
-  public sealed interface Command extends Serializable {}
+  private double getMaxSpeed() {
+    double defaultAverageSpeed = 48.2;
+    return defaultAverageSpeed * (1 + ((double) averageSpeedAdjustmentFactor / 100));
+  }
 
-  public record StartCommand(int raceLength) implements Command {}
+  private double getDistanceMovedPerSecond() {
+    return currentSpeed * 1000 / 3600;
+  }
 
-  public record PositionCommand(ActorRef<RaceControl.Command> raceControl) implements Command {}
+  private void determineNextSpeed(int raceLength, double currentPosition) {
+    if (currentPosition < (raceLength / 4)) {
+      currentSpeed = currentSpeed + (((getMaxSpeed() - currentSpeed) / 10) * random.nextDouble());
+    } else {
+      currentSpeed = currentSpeed * (0.5 + random.nextDouble());
+    }
+
+    if (currentSpeed > getMaxSpeed()) {
+      currentSpeed = getMaxSpeed();
+    }
+
+    if (currentSpeed < 5) {
+      currentSpeed = 5;
+    }
+
+    if (currentPosition > (raceLength / 2) && currentSpeed < getMaxSpeed() / 2) {
+      currentSpeed = getMaxSpeed() / 2;
+    }
+  }
 }

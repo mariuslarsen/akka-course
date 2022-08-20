@@ -12,6 +12,12 @@ import java.util.stream.IntStream;
 
 public class ManagerBehavior extends AbstractBehavior<ManagerBehavior.Command> {
 
+  public sealed interface Command extends Serializable {}
+
+  public record InstructionCommand(String instruction) implements Command {}
+
+  public record ResultCommand(BigInteger prime) implements Command {}
+
   private ManagerBehavior(ActorContext<ManagerBehavior.Command> context) {
     super(context);
   }
@@ -45,10 +51,4 @@ public class ManagerBehavior extends AbstractBehavior<ManagerBehavior.Command> {
             })
         .build();
   }
-
-  public sealed interface Command extends Serializable {}
-
-  public record InstructionCommand(String instruction) implements Command {}
-
-  public record ResultCommand(BigInteger prime) implements Command {}
 }

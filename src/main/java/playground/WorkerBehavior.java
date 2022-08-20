@@ -13,6 +13,11 @@ import java.util.Random;
 
 public class WorkerBehavior extends AbstractBehavior<WorkerBehavior.Command> {
 
+  public sealed interface Command extends Serializable {}
+
+  public record CalculateCommand(String message, ActorRef<ManagerBehavior.Command> replyTo)
+      implements Command {}
+
   private WorkerBehavior(ActorContext<Command> context) {
     super(context);
   }
@@ -36,9 +41,4 @@ public class WorkerBehavior extends AbstractBehavior<WorkerBehavior.Command> {
             })
         .build();
   }
-
-  public sealed interface Command extends Serializable {}
-
-  public record CalculateCommand(String message, ActorRef<ManagerBehavior.Command> replyTo)
-      implements Command {}
 }

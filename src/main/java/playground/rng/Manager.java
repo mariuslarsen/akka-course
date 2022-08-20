@@ -13,6 +13,14 @@ import java.util.Objects;
 
 public class Manager extends AbstractBehavior<Manager.Command> {
 
+  public interface Command extends Serializable {}
+
+  public record Init() implements Command {}
+
+  public record Result(int number) implements Command {}
+
+  private record NoResponse(int attempts) implements Command {}
+
   private Manager(ActorContext<Manager.Command> context) {
     super(context);
   }
@@ -81,12 +89,4 @@ public class Manager extends AbstractBehavior<Manager.Command> {
             (response, throwable) ->
                 Objects.requireNonNullElseGet(response, () -> new NoResponse(attempts)));
   }
-
-  public interface Command extends Serializable {}
-
-  public record Init() implements Command {}
-
-  public record Result(int number) implements Command {}
-
-  private record NoResponse(int attempts) implements Command {}
 }
