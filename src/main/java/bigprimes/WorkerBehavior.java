@@ -39,7 +39,10 @@ public class WorkerBehavior extends AbstractBehavior<WorkerBehavior.Command> {
         .onMessage(CalculatePrime.class, command -> {
           BigInteger bigInteger = new BigInteger(2000, new Random());
           BigInteger prime = bigInteger.nextProbablePrime();
-          command.sender.tell(new ManagerBehavior.ResultCommand(prime));
+          if(Math.random() < 0.4) {
+              command.sender.tell(new ManagerBehavior.ResultCommand(prime));
+              return Behaviors.same();
+          }
           return handleWithCachedPrime(prime);
         })
         .build();
