@@ -46,7 +46,7 @@ public class WorkerBehavior extends AbstractBehavior<WorkerBehavior.Command> {
                 HashResult hashResult = HashResult.foundAHash(nonce, hash);
 
                 // send hashresult to controller return hashResult;
-                getContext().getLog().debug(hashResult.nonce() + " : " + hashResult.hash());
+                getContext().getLog().debug("{} : {}", hashResult.nonce(), hashResult.hash());
                 message.controller.tell(hashResult);
                 return Behaviors.same();
               } else {
