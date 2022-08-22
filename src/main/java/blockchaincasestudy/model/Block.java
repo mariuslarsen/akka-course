@@ -2,8 +2,8 @@ package blockchaincasestudy.model;
 
 public class Block {
 
-  private String previousHash;
-  private Transaction transaction;
+  private final String previousHash;
+  private final Transaction transaction;
   private int nonce;
   private String hash;
 
@@ -12,16 +12,12 @@ public class Block {
     this.transaction = transaction;
   }
 
-  public void setNonce(int nonce) {
-    this.nonce = nonce;
+  public String getHash() {
+    return hash;
   }
 
   public void setHash(String hash) {
     this.hash = hash;
-  }
-
-  public String getHash() {
-    return hash;
   }
 
   public String getPreviousHash() {
@@ -36,4 +32,7 @@ public class Block {
     return nonce;
   }
 
+  public void setNonce(int nonce) {
+    this.nonce = nonce;
+  }
 }

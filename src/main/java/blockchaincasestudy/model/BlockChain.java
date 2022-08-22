@@ -1,11 +1,12 @@
 package blockchaincasestudy.model;
 
 import blockchaincasestudy.utils.BlockChainUtils;
+
 import java.util.LinkedList;
 
 public class BlockChain {
 
-  private LinkedList<Block> blocks;
+  private final LinkedList<Block> blocks;
 
   public BlockChain() {
     blocks = new LinkedList<>();
@@ -48,7 +49,6 @@ public class BlockChain {
       }
 
       lastHash = block.getHash();
-
     }
   }
 
@@ -62,5 +62,4 @@ public class BlockChain {
   public int getSize() {
     return blocks.size();
   }
-
 }

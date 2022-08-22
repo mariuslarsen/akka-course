@@ -6,6 +6,6 @@ public record HashResult(int nonce, String hash, boolean completed) {
   }
 
   public static HashResult emptyHash() {
-   return new HashResult(0, "", false);
+    return new HashResult(0, "", false);
   }
 }
