@@ -52,7 +52,7 @@ public class Manager extends AbstractBehavior<Manager.Command> {
         .onMessage(
             Result.class,
             message -> {
-              getContext().getLog().info("Received " + message.number);
+              getContext().getLog().info("Received {}", message.number);
               return Behaviors.stopped();
             })
         .onMessage(
@@ -61,7 +61,7 @@ public class Manager extends AbstractBehavior<Manager.Command> {
             message -> {
               getContext()
                   .getLog()
-                  .warn("No response after " + message.attempts + " attempts. Retrying...");
+                  .warn("No response after {} attempts. Retrying...", message.attempts);
               askForNumber(worker, message.attempts + 1);
               return Behaviors.same();
             })
@@ -71,9 +71,7 @@ public class Manager extends AbstractBehavior<Manager.Command> {
               getContext()
                   .getLog()
                   .error(
-                      "No response after "
-                          + message.attempts
-                          + " attempts. Terminating application");
+                      "No response after {} attempts. Terminating application", message.attempts);
               return Behaviors.stopped();
             })
         .build();

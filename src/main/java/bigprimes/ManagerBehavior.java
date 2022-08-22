@@ -18,7 +18,7 @@ public class ManagerBehavior extends AbstractBehavior<ManagerBehavior.Command> {
 
   public sealed interface Command extends Serializable {}
 
-  public record StartCommand() implements Command {}
+  public record StartCommand(ActorRef<SortedSet<BigInteger>> sender) implements Command {}
 
   public record ResultCommand(BigInteger prime) implements Command {}
 
@@ -34,6 +34,7 @@ public class ManagerBehavior extends AbstractBehavior<ManagerBehavior.Command> {
   }
 
   private final SortedSet<BigInteger> primes = new TreeSet<>();
+  private ActorRef<SortedSet<BigInteger>> sender;
 
   @Override
   public Receive<Command> createReceive() {
@@ -44,6 +45,7 @@ public class ManagerBehavior extends AbstractBehavior<ManagerBehavior.Command> {
               IntStream.range(0, 20)
                   .mapToObj(i -> getContext().spawn(WorkerBehavior.create(), "worker-" + i))
                   .forEach(this::askWorkerForPrime);
+              sender = command.sender;
               return Behaviors.same();
             })
         .onMessage(
@@ -52,7 +54,7 @@ public class ManagerBehavior extends AbstractBehavior<ManagerBehavior.Command> {
               primes.add(command.prime);
               System.out.println("Processed: " + primes.size() + " primes");
               if (primes.size() == 20) {
-                primes.forEach(System.out::println);
+                this.sender.tell(primes);
               }
               return Behaviors.same();
             })
