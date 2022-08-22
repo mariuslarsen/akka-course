@@ -13,7 +13,7 @@ import blockchaincasestudy.utils.BlockChainUtils;
 public class WorkerBehavior extends AbstractBehavior<WorkerBehavior.Command> {
 
   public record Command(
-      Block block, int startNonce, int difficulty, ActorRef<HashResult> controller) {}
+      Block block, int startNonce, int difficulty, ActorRef<ManagerBehavior.Command> controller) {}
 
   private WorkerBehavior(ActorContext<Command> context) {
     super(context);
@@ -47,11 +47,14 @@ public class WorkerBehavior extends AbstractBehavior<WorkerBehavior.Command> {
 
                 // send hashresult to controller return hashResult;
                 getContext().getLog().debug("{} : {}", hashResult.nonce(), hashResult.hash());
-                message.controller.tell(hashResult);
+                message.controller.tell(new ManagerBehavior.HashResultCommand(hashResult));
                 return Behaviors.same();
               } else {
                 getContext().getLog().debug("null");
-                return Behaviors.same();
+                //                if(Math.random() < 0.1) {
+                //                  throw new ArithmeticException("No hash found");
+                //                }
+                return Behaviors.stopped();
               }
             })
         .build();
